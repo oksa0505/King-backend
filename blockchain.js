@@ -6,6 +6,7 @@ const RPC_URL = process.env.RPC_URL || 'https://mainnet.base.org';
 const PRIVATE_KEY = process.env.PRIVATE_KEY; // For the relayer
 const KING_CONTRACT_ADDRESS = process.env.KING_CONTRACT_ADDRESS;
 const TOKEN_ADDRESS = process.env.TOKEN_ADDRESS;
+const POOL_ADDRESS = process.env.POOL_ADDRESS; // To prevent the pool from being King
 
 const provider = new ethers.JsonRpcProvider(RPC_URL);
 let wallet;
@@ -114,6 +115,12 @@ async function checkAndDistributeFees() {
 // Optional relayer function to update king automatically
 async function checkAndRelayNewKing(contender, contenderBalance) {
     if (!wallet) return; // Only relay if we have a wallet
+
+    // VERY IMPORTANT: The Liquidity Pool cannot be the King!
+    if (POOL_ADDRESS && contender.toLowerCase() === POOL_ADDRESS.toLowerCase()) {
+        console.log("Ignoring Pool Address for King:", contender);
+        return;
+    }
 
     const currentKingAddress = db.getCurrentKing();
     if (!currentKingAddress) {
