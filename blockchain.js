@@ -6,7 +6,7 @@ const RPC_URL = process.env.RPC_URL || 'https://mainnet.base.org';
 const PRIVATE_KEY = process.env.PRIVATE_KEY; // For the relayer
 const KING_CONTRACT_ADDRESS = process.env.KING_CONTRACT_ADDRESS;
 const TOKEN_ADDRESS = process.env.TOKEN_ADDRESS;
-const POOL_ADDRESS = process.env.POOL_ADDRESS; // To prevent the pool from being King
+const POOL_ADDRESS = process.env.POOL_ADDRESS || "0x498581fF718922c3f8e6A244956aF099B2652b2b"; // To prevent the pool from being King
 
 const provider = new ethers.JsonRpcProvider(RPC_URL);
 let wallet;
