@@ -50,14 +50,29 @@ async function startListening() {
             // Update balances
             const balanceTo = await tokenContract.balanceOf(to);
             db.updateHolderBalance(to, balanceTo.toString());
-            
+
             if (from !== ethers.ZeroAddress) {
-                const balanceFrom = await tokenContract.balanceOf(from);
+                balanceFrom = await tokenContract.balanceOf(from);
                 db.updateHolderBalance(from, balanceFrom.toString());
             }
 
             // Check if 'to' should be the new king
             await checkAndRelayNewKing(to, balanceTo);
+            
+            // Also check if 'from' is still bigger and should reclaim/keep the throne!
+            if (from !== ethers.ZeroAddress && balanceFrom) {
+                await checkAndRelayNewKing(from, balanceFrom);
+            }
+            
+            // Check true top holder in case the King sold their tokens
+            const topHolders = db.getTopHolders(5);
+            for (const holder of topHolders) {
+                if (POOL_ADDRESS && holder.address.toLowerCase() === POOL_ADDRESS.toLowerCase()) {
+                    continue;
+                }
+                await checkAndRelayNewKing(holder.address, holder.balance);
+                break;
+            }
         } catch (error) {
             console.error("Error processing Transfer:", error);
         }
