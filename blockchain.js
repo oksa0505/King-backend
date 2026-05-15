@@ -23,7 +23,7 @@ const erc20Abi = [
 const kingAbi = [
     "event KingChanged(address indexed newKing, uint256 tokenBalance)",
     "event FeesDistributed(address indexed king, uint256 amount)",
-    "event TokensBurned(uint256 ethAmountUsed, uint256 tokensBurned)",
+    "event FeesToTreasury(uint256 amount)",
     "event FeesReceived(address indexed sender, uint256 amount)",
     "function updateKing(address contender) external",
     "function distributeFees() external",
@@ -93,10 +93,9 @@ async function startListening() {
         db.addFeesEarned(king, amount.toString());
     });
 
-    // Listen to TokensBurned
-    kingContract.on("TokensBurned", (ethAmount, tokensBurned, event) => {
-        console.log("Tokens Burned:", ethers.formatEther(tokensBurned));
-        db.addGlobalStats('total_burned', tokensBurned.toString());
+    // Listen to FeesToTreasury
+    kingContract.on("FeesToTreasury", (amount, event) => {
+        console.log("Fees sent to Treasury Wallet:", ethers.formatEther(amount));
     });
 
     // Listen to FeesReceived
